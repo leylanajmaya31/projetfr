@@ -5,45 +5,67 @@ use App\Model\Utilisateur;
 use App\Utils\Utilitaire;
 use App\Model\Recette;
 class RecetteController extends Recette{
-    public function addRecette(){
-        $error ="";
+    public function addRecette() {
+        $error = "";
         $user = new Utilisateur();
-        $user->setId(Utilitaire::cleanInput($_SESSION['id']));
+    
+        // Nettoyer l'ID de l'utilisateur provenant de la session
+        $userId = Utilitaire::cleanInput($_SESSION['id']);
+        $user->setId($userId);
         $users = $user->findAll();
-        if(isset($_POST['submit'])){
-            if(!empty($_POST['nom_recette']) AND !empty($_POST['date_recette']) AND !empty($_POST['niveau_recette'])
-            AND !empty($_POST['description_recette'])AND !empty($_POST['portion_recette']) AND !empty($_POST['temps_recette'])
-            AND !empty($_POST['image_recette'])){
+    
+        if (isset($_POST['submit'])) {
+            if (
+                !empty($_POST['nom_recette']) && 
+                !empty($_POST['date_recette']) && 
+                !empty($_POST['niveau_recette']) &&
+                !empty($_POST['description_recette']) && 
+                !empty($_POST['portion_recette']) && 
+                !empty($_POST['temps_recette']) &&
+                !empty($_FILES['image_recette']['name'])
+            ) {
                 $this->setNom(Utilitaire::cleanInput($_POST['nom_recette']));
                 $this->setDate(Utilitaire::cleanInput($_POST['date_recette']));
                 $this->setNiveau(Utilitaire::cleanInput($_POST['niveau_recette']));
                 $this->setDescription(Utilitaire::cleanInput($_POST['description_recette']));
                 $this->setPortion(Utilitaire::cleanInput($_POST['portion_recette']));
                 $this->setTemps(Utilitaire::cleanInput($_POST['temps_recette']));
-                $this->setImage(Utilitaire::cleanInput($_POST['image_recette']));
-                $this->setStatut(false);
-                 // Associer l'ID de l'utilisateur à la recette
-                 $this->setIdUtilisateur($user->getId());
-                $recette = $this->findOneBy();
-                if($recette){
-                    $error = "La recette existe déja";
+    
+                // Nettoyer le nom du fichier image
+                $imageName = Utilitaire::cleanInput($_FILES['image_recette']['name']);
+    
+                $uploadDir = './Public/asset/images/'; // Chemin vers le répertoire de destination
+                $uploadFile = $uploadDir . basename($imageName);
+    
+                if (move_uploaded_file($_FILES['image_recette']['tmp_name'], $uploadFile)) {
+                    // Le fichier a été téléchargé avec succès
+                    $this->setImage($imageName);
+                    
+                    // Associer l'ID de l'utilisateur à la recette
+                    $this->setIdUtilisateur($userId);
+    
+                    // Vérifier si la recette existe déjà
+                    $recette = $this->findOneBy();
+                    if ($recette) {
+                        $error = "La recette existe déjà";
+                    } else {
+                        $this->add();
+                        $error = "La recette a été ajoutée en BDD";
+                    }
+                } else {
+                    $error = "Erreur lors du téléchargement de l'image.";
                 }
-                else{
-                    $this->add();
-                    $error = "La recette a été ajoutée en BDD";
-                }
-
-            }
-            else{
+            } else {
                 $error = "Veuillez remplir tous les champs du formulaire";
             }
         }
-        Template::render('navbar.php', 'footer.php','vueAddRecette.php','Recette',   
-        ['script.js', 'main.js'],['style.css', 'main.css'],$error,$users);
+    
+        Template::render(
+            'navbar.php', 'footer.php', 'vueAddRecette.php', 'Recette',
+            ['script.js', 'main.js'], ['style.css', 'main.css'], $error, $users
+        );
     }
     
-
-
     public function getAllRecette(){
         $error = "";
         $recettes = $this->findAll();
@@ -53,6 +75,17 @@ class RecetteController extends Recette{
         Template::render('navbar.php','footer.php','vueAllRecette.php','Toutes les Recettes', 
         ['script.js', 'main.js'],['style.css', 'main.css'],$error,$recettes);
     }
+
+
+public function getRecette(){
+    $error = "";
+    $recette = $this->find();
+    if(empty($recette)){
+        $error = "Il n'y a pas de recettes à afficher";
+    }
+    Template::render('navbar.php','footer.php','vueOneRecette.php','Une Recette', 
+    ['script.js', 'main.js'],['style.css', 'main.css'],$error,$recette);
+}
 }
 
     // public function filterRecette(){
@@ -72,3 +105,4 @@ class RecetteController extends Recette{
     //     Template::render('navbar.php','footer.php','vueFilterAllRecettes.php','Filtrer recettes', 
     //     ['script.js', 'main.js'], ['style.css', 'main.css'],$error, $recettes);
     // }
+    

@@ -1,17 +1,20 @@
-<?php ob_start()?>
+<?php ob_start() ?>
+<h1 id="titreh1">TOUTES LES RECETTES</h1>
+<hr>
+<main class="mainContent">
+    <?php foreach ($tab as $recette) : ?>
+        <section class="card">
+            <!-- ********************** Card 1 **********************  -->
+            <div class="card1">
+                <img src="./Public/asset/images/<?= $recette->getImage()?>" alt="...">
+                <h4><strong>Titre: <?= $recette->getNom() ?></strong></h4> <br>
+                <p>Publiée par: <?= $recette->nom_utilisateur ?></p> <br>
+                <button type="submit" id="cardButton">Lire la recette</button>
+            </div>
+        </section>
+    <?php endforeach ?>
+    <p><?= $error ?></p>
+</main>
+<?php $content = ob_get_clean() ?>
 
-<?php foreach ($recettes as $recette) : ?>
-    <div class="card">
-        <img src="<?= $recette->getImage(); ?>" alt="<?= $recette->getNom(); ?>">
-        <h2><?= $recette->getNom(); ?></h2>
-        <p>Niveau : <?= $recette->getNiveau(); ?></p>
-        <p>Date : <?= $recette->getDate(); ?></p>
-        <p>Description : <?= $recette->getDescription(); ?></p>
-        <p>Portions : <?= $recette->getPortion(); ?></p>
-        <p>Temps de cuisson : <?= $recette->getTemps(); ?></p>
-        <p>Auteur : <?= $recette->getNomUtilisateur(); ?></p>
-    </div>
-<?php endforeach; ?>
-<p><?=$error?></p>
-<?php $content = ob_get_clean()?>
 

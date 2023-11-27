@@ -45,7 +45,7 @@
 <?php else:?>
   <nav>
       <ul>
-        <li class="active"><a href="#"><i class='bx bx-home' style='color:#b6452c'></i> Accueil</a></li>
+        <li class="active"><a href="./"><i class='bx bx-home' style='color:#b6452c'></i> Accueil</a></li>
         <li class="menu-deroulant">
           <a href="#">Recettes</a>
           <ul class="sous-menu">
@@ -65,7 +65,7 @@
         <li class="menu-deroulant">
           <a href="inscription-connexion.html"><i class='bx bx-user-circle' style='color:#B6452C'></i> Compte</a>
           <ul class="sous-menu">
-            <li><a href="connexion.html">Connexion</a>
+            <li><a href="./userconnexion">Connexion</a>
             <li><a href="inscription.html">Inscription</a>
           </ul>
         </li>

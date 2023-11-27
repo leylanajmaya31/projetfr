@@ -12,10 +12,10 @@ class Recette extends BddConnect{
     private ?string $date_recette;
     private ?int $portion_recette;
     private ?string $temps_recette;
-    private ?bool $statut_recette;
+    private ?bool $statut_recette = null;
     private ?string $description_recette;
-    private ?string $image_recette;
-    private ?int $id_utilisateur;
+    private ?string $image_recette = null;
+    private ?int $id_utilisateur = null;
     
     /*---------------------------- 
             Getters et Setters
@@ -84,6 +84,10 @@ class Recette extends BddConnect{
         $this->id_utilisateur = $utilisateur;
     }
 
+    public function getLastInsertedId() {
+        return $this->connexion()->lastInsertId();
+    }
+
     /*---------------------------- 
                 Méthodes
     -----------------------------*/
@@ -99,6 +103,7 @@ class Recette extends BddConnect{
             $temps = $this->getTemps();
             $image = $this->getImage();
             $statut = $this->getStatut();
+            $statut = $statut ?? true;
             $utilisateur = $this->getIdUtilisateur();
             $req = $this->connexion()->prepare('INSERT INTO recette(nom_recette, date_recette,
             niveau_recette, description_recette, portion_recette, temps_recette, image_recette, statut_recette, id_utilisateur)
@@ -118,26 +123,26 @@ class Recette extends BddConnect{
         } 
     }
 
-    //!Rechercher une recette
+    // Rechercher une recette
     public function findOneBy(){
         try {
             $nom = $this->getNom();
-            $date = $this->getDate();
             $niveau = $this->getNiveau();
-            $description = $this->getDescription();
+            $date = $this->getDate();
             $portion = $this->getPortion();
             $temps = $this->getTemps();
+            $description = $this->getDescription();
             $image = $this->getImage();
             $req = $this->connexion()->prepare('SELECT recette.id_utilisateur, id_recette, nom_recette,
-            niveau_recette, description_recette, date_recette, portion_recette, temps_recette FROM recette 
-            WHERE nom_recette = ? AND niveau_recette = ? AND date_recette = ? AND description_recette = ?
-            AND portion_recette = ? AND temps_recette = ? AND image_recette = ?');
+            niveau_recette, date_recette, portion_recette, temps_recette, description_recette, image_recette FROM recette 
+            WHERE nom_recette = ? AND niveau_recette = ? AND date_recette = ? AND 
+            portion_recette = ? AND temps_recette = ? AND description_recette = ? AND image_recette = ?');
             $req->bindParam(1, $nom, \PDO::PARAM_STR);
             $req->bindParam(2, $niveau, \PDO::PARAM_STR);
-            $req->bindParam(3, $description, \PDO::PARAM_STR);
-            $req->bindParam(4, $date, \PDO::PARAM_STR);
-            $req->bindParam(5, $portion, \PDO::PARAM_INT);
-            $req->bindParam(6, $temps, \PDO::PARAM_STR);
+            $req->bindParam(3, $date, \PDO::PARAM_STR);
+            $req->bindParam(4, $portion, \PDO::PARAM_INT);
+            $req->bindParam(5, $temps, \PDO::PARAM_STR);
+            $req->bindParam(6, $description, \PDO::PARAM_STR);
             $req->bindParam(7, $image, \PDO::PARAM_STR);
             $req->setFetchMode(\PDO::FETCH_CLASS| \PDO::FETCH_PROPS_LATE, Recette::class);
             $req->execute();
@@ -148,22 +153,39 @@ class Recette extends BddConnect{
         }
     }
 
+    // !Afficher la liste des recettes
+  public function findAll() {
+    try {
+        $req = $this->connexion()->prepare('SELECT 
+            recette.id_recette, recette.nom_recette, recette.niveau_recette, 
+            recette.description_recette, recette.date_recette, recette.portion_recette, recette.temps_recette,
+            recette.image_recette, utilisateur.nom_utilisateur, utilisateur.image_utilisateur
+            FROM recette
+            INNER JOIN utilisateur ON recette.id_utilisateur = utilisateur.id_utilisateur');
+        $req->execute();
+        return $req->fetchAll(\PDO::FETCH_CLASS| \PDO::FETCH_PROPS_LATE, Recette::class);
+    } catch (\Exception $e) {
+        die('Error : ' . $e->getMessage());
+    }
+}
 
-    //!Afficher la liste des recettes
-    public function findAll() {
+
+    public function find(){
         try {
+            $id_recette = $this->id_recette;
             $req = $this->connexion()->prepare('SELECT 
-                recette.id_recette, recette.nom_recette, recette.niveau_recette, 
-                recette.description_recette, recette.date_recette, recette.portion_recette, recette.temps_recette,
-                utilisateur.nom_utilisateur
-                FROM recette
-                INNER JOIN utilisateur ON recette.id_utilisateur = utilisateur.id_utilisateur');
+                recette.id_recette, recette.nom_recette, recette.niveau_recette, recette.date_recette, recette.portion_recette,
+                recette.temps_recette, recette.description_recette, recette.image_recette, utilisateur.nom_utilisateur, utilisateur.image_utilisateur
+                FROM recette 
+                INNER JOIN 
+                    utilisateur ON recette.id_utilisateur = utilisateur.id_utilisateur
+                WHERE 
+                    recette.id_recette = :id_recette');
+            $req->bindParam(':id_recette', $id_recette, \PDO::PARAM_INT);
             $req->execute();
-            return $req->fetchAll(\PDO::FETCH_CLASS| \PDO::FETCH_PROPS_LATE, Recette::class);
+            return $req->fetch(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, Recette::class, null);
         } catch (\Exception $e) {
             die('Error : ' . $e->getMessage());
         }
     }
-
-
-}
+}    

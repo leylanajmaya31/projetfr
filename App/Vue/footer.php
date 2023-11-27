@@ -7,7 +7,7 @@
         <li class="list-inline-item"><a href="#">À propos</a></li>
         <li class="list-inline-item"><a href="#">Nous contacter</a></li>
         <li class="list-inline-item"><a href="#">Politique de confidentialité</a></li>
-        <li class="list-inline-item"><a href="#"></a>Mentions légales</li>
+        <li class="list-inline-item"><a href="#">Mentions légales</a></li>
         <li class="list-inline-item"><a href="#">F.A.Q</a></li>
       </ul>
       <p class="copyright">Share &amp; Cook © 2023</p>

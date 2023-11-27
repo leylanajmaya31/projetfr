@@ -44,6 +44,9 @@
             case '/projetfr/recetteall':
                 $recetteController->getAllRecette();
                 break;
+                case '/projetfr/recetteone':
+                    $recetteController->getRecette();
+                    break;
             // case '/projetfr/recetteupdate':
             //     $recetteController->updateRecette();
             //     break;

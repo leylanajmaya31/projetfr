@@ -16,7 +16,7 @@ class UtilisateurController extends Utilisateur{
                 //!Test si les mots de passe correspondent
                 if($_POST['mdp_utilisateur']==$_POST['repeat_mdp_utilisateur']){
                     //!setter les valeurs à l'objet UtilisateurController
-                    $this->setNom(Utilitaire::cleanInput($_POST['nom_utilisateur']));
+                    $this->setNomUtilisateur(Utilitaire::cleanInput($_POST['nom_utilisateur']));
                     $this->setPrenom(Utilitaire::cleanInput($_POST['prenom_utilisateur']));
                     $this->setEmail(Utilitaire::cleanInput($_POST['email_utilisateur']));
                     //!tester si le compte existe
@@ -25,7 +25,7 @@ class UtilisateurController extends Utilisateur{
                             $ext = Utilitaire::getFileExtension($_FILES['image_utilisateur']['name']);
                             if($ext=='png' OR $ext =='PNG' OR $ext = 'jpg' OR $ext =='JPG'OR $ext =='jpeg' OR $ext == 'JPEG' OR $ext=='bmp' OR $ext=='BMP'){
                                 $this->setImage($_FILES['image_utilisateur']['name']);
-                                move_uploaded_file($_FILES['image_utilisateur']['tmp_name'], './Public/asset/img/'.$_FILES['image_utilisateur']['name']);
+                                move_uploaded_file($_FILES['image_utilisateur']['tmp_name'], './Public/asset/images/'.$_FILES['image_utilisateur']['name']);
                             }
                             else{
                                 $error = 'format incorrect';
@@ -35,7 +35,7 @@ class UtilisateurController extends Utilisateur{
                         else{
                             $this->setImage('test.png');
                         }
-                        $this->setStatut(true);
+                        $this->setStatut(false);
                         //!hashser le mot de passe
                         $this->setMdp(password_hash(Utilitaire::cleanInput($_POST['mdp_utilisateur']), PASSWORD_DEFAULT));
                         //!Créer les variables
@@ -79,7 +79,7 @@ class UtilisateurController extends Utilisateur{
                         $error = "Connecté";
                         $_SESSION['connected'] = true;
                         $_SESSION['id'] = $user->getId();
-                        $_SESSION['nom'] = $user->getNom();
+                        $_SESSION['nom'] = $user->getNomUtilisateur();
                         $_SESSION['prenom'] = $user->getPrenom();
                         $_SESSION['image'] = $user->getImage();
                         $error = 'vous êtes connecté';

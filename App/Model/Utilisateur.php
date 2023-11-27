@@ -24,10 +24,10 @@ class Utilisateur extends BddConnect{
     public function setId(?int $id){
         $this->id_utilisateur = $id;
     }
-    public function getNom():?string{
+    public function getNomUtilisateur():?string{
         return $this->nom_utilisateur;
     }
-    public function setNom(?string $nom){
+    public function setNomUtilisateur(?string $nom){
         $this->nom_utilisateur = $nom;
     }
     public function getPrenom():?string{
