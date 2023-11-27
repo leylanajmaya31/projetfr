@@ -4,6 +4,7 @@ use App\vue\Template;
 use App\Model\Utilisateur;
 use App\Utils\Utilitaire;
 use App\Model\Recette;
+use App\Model\Ingredient;
 class RecetteController extends Recette{
     public function addRecette() {
         $error = "";
@@ -13,7 +14,6 @@ class RecetteController extends Recette{
         $userId = Utilitaire::cleanInput($_SESSION['id']);
         $user->setId($userId);
         $users = $user->findAll();
-    
         if (isset($_POST['submit'])) {
             if (
                 !empty($_POST['nom_recette']) && 
@@ -22,7 +22,9 @@ class RecetteController extends Recette{
                 !empty($_POST['description_recette']) && 
                 !empty($_POST['portion_recette']) && 
                 !empty($_POST['temps_recette']) &&
-                !empty($_FILES['image_recette']['name'])
+                !empty($_POST['unite_recette']) &&
+                !empty($_FILES['image_recette']['name']) &&
+                !empty($_POST['nom_ingredient'])
             ) {
                 $this->setNom(Utilitaire::cleanInput($_POST['nom_recette']));
                 $this->setDate(Utilitaire::cleanInput($_POST['date_recette']));
@@ -30,27 +32,43 @@ class RecetteController extends Recette{
                 $this->setDescription(Utilitaire::cleanInput($_POST['description_recette']));
                 $this->setPortion(Utilitaire::cleanInput($_POST['portion_recette']));
                 $this->setTemps(Utilitaire::cleanInput($_POST['temps_recette']));
-    
+                $this->setUnite(Utilitaire::cleanInput($_POST['unite_recette']));
+                $this->getAuteur()->setId(Utilitaire::cleanInput($_SESSION['id']));
+    // Récupérer les ingrédients depuis le champ textarea
+    $ingredientsInput = Utilitaire::cleanInput($_POST['nom_ingredient']);
+
+    // Diviser la chaîne en un tableau d'ingrédients
+    $ingredientsArray = explode("\n", $ingredientsInput);
                 // Nettoyer le nom du fichier image
                 $imageName = Utilitaire::cleanInput($_FILES['image_recette']['name']);
-    
                 $uploadDir = './Public/asset/images/'; // Chemin vers le répertoire de destination
                 $uploadFile = $uploadDir . basename($imageName);
     
                 if (move_uploaded_file($_FILES['image_recette']['tmp_name'], $uploadFile)) {
                     // Le fichier a été téléchargé avec succès
                     $this->setImage($imageName);
-                    
                     // Associer l'ID de l'utilisateur à la recette
-                    $this->setIdUtilisateur($userId);
-    
+                    // $this->setAuteur($userId);
                     // Vérifier si la recette existe déjà
                     $recette = $this->findOneBy();
                     if ($recette) {
                         $error = "La recette existe déjà";
                     } else {
                         $this->add();
-                        $error = "La recette a été ajoutée en BDD";
+                        // Récupérer l'ID de la recette nouvellement ajoutée
+        $recetteId = $this->getLastInsertedId();
+
+        // Enregistrement des ingrédients dans la table ingredients
+        foreach ($ingredientsArray as $ingredientName) {
+            $ingredient = new Ingredient();
+            $ingredient->setNom(Utilitaire::cleanInput($ingredientName));
+            $ingredient->setIdIngredient($recetteId);
+            // Ajouter une entrée dans la table d'association (id_recette, id_ingredients)
+            $ingredient->addAssociation($recetteId, $ingredient->getIdIngredient());
+        }
+
+        $error = "La recette et les ingrédients ont été ajoutés en BDD";
+                        // $error = "La recette a été ajoutée en BDD";
                     }
                 } else {
                     $error = "Erreur lors du téléchargement de l'image.";

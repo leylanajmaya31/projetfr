@@ -15,10 +15,10 @@
     </div>
 
     <div class="quantite-container">
-        <label for="quantite_ingredient">Nombre de personne ou portion</label>
-        <input type="number" name="quantite_ingredient" id="quantite_ingredient" min="1" value="1">
+        <label for="portion_recette">Nombre de personne ou portion</label>
+        <input type="number" name="portion_recette" id="portion_recette" min="1" value="1">
         </div>
-        <select name="portion_ingredient" id="portion_ingredient">
+        <select name="unite_recette" id="unite_recette">
             <option value="personne">Personne</option>
             <option value="pièce">Pièce</option>
             <option value="portion">Portion</option>
